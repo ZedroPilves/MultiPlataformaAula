@@ -804,11 +804,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connected: 0
-  playerNameInput: {fileID: 855787086}
   btnTexto: {fileID: 345050634}
-  firstConnect: 1
   telaLogin: {fileID: 1654325728}
   telaJoin: {fileID: 976074553}
+  textoNickPlayer: {fileID: 194110047}
+  playerNameInput: {fileID: 855787086}
+  roomName: {fileID: 932935648}
+  firstConnect: 1
 --- !u!4 &650125564
 Transform:
   m_ObjectHideFlags: 0
@@ -2556,7 +2558,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 650125563}
         m_TargetAssemblyTypeName: NetworkController, Assembly-CSharp
-        m_MethodName: ConnectToServerBTN
+        m_MethodName: BotaoCriarSala
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -9,16 +9,24 @@ using TMPro;
 public class NetworkController : MonoBehaviourPunCallbacks
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-
+    [Header("Telas e menu")]
     [SerializeField] bool connected = false;
 
-    [SerializeField] TMP_InputField playerNameInput;
+   
     [SerializeField] TMP_Text btnTexto;
-    [SerializeField] bool firstConnect = true;
     [SerializeField] GameObject telaLogin;
     [SerializeField] GameObject telaJoin;
     [SerializeField] TMP_Text textoNickPlayer;
+
+
+    [Header("Player")]
     string playerNameTemp;
+    [SerializeField] TMP_InputField playerNameInput;
+    [SerializeField] TMP_InputField roomName;
+
+
+
+    [SerializeField] bool firstConnect = true;
 
     void Start()
     {
@@ -27,8 +35,27 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
         telaLogin.SetActive(true);
         telaJoin.SetActive(false);
+        roomName.text = $"Room {Random.Range(1, 1000)}";
     }
 
+    public void Login()
+    {
+        if (playerNameInput.text == "")
+        {
+            PhotonNetwork.NickName = playerNameTemp;
+            textoNickPlayer.text = playerNameTemp;
+
+        }
+        else
+        {
+            
+            PhotonNetwork.NickName = playerNameInput.text;
+            textoNickPlayer.text = playerNameInput.text;
+        }
+        PhotonNetwork.ConnectUsingSettings();   
+    
+         
+    }
     // Update is called once per frame
     void Update()
     {
@@ -36,6 +63,17 @@ public class NetworkController : MonoBehaviourPunCallbacks
        // {
        //     PhotonNetwork.ConnectToRegion("eu");
        // }
+    }
+
+    public void BuscarPartida()
+    {
+        PhotonNetwork.JoinLobby();
+    }
+    public void BotaoCriarSala()
+    {
+        string roomNameTemp = roomName.text;
+        RoomOptions roomOptions = new RoomOptions() {MaxPlayers = 4 };
+        PhotonNetwork.JoinOrCreateRoom(roomNameTemp, roomOptions,TypedLobby.Default);
     }
 
     public override void OnConnected()
@@ -46,6 +84,13 @@ public class NetworkController : MonoBehaviourPunCallbacks
         firstConnect = false;
      
     }
+    public  override void OnJoinedRoom()
+    {
+        base.OnJoinedRoom();
+        print("OnJoinedRoom");
+        print($"Room name {PhotonNetwork.CurrentRoom.Name}");
+        print("Current Player in room: " + PhotonNetwork.CurrentRoom.PlayerCount);
+    }
 
     public void ConnectToServerBTN()
     {
@@ -53,6 +98,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.ConnectUsingSettings();
             btnTexto.text = "conectando";
+           
+            Login();
         }
         else { btnTexto.text = "Servidor ja conectado"; StartCoroutine(ChangeBtnName()); }
         }
@@ -85,8 +132,9 @@ public class NetworkController : MonoBehaviourPunCallbacks
         print("Conectado ao master");
         print($"Server: {PhotonNetwork.CloudRegion} \n Ping:{PhotonNetwork.GetPing()}");
         btnTexto.text = "Conectado";
-        Login();
-        PhotonNetwork.JoinLobby();
+
+        telaLogin.SetActive(false);
+        telaJoin.SetActive(true);
     }
 
 
@@ -124,23 +172,6 @@ public class NetworkController : MonoBehaviourPunCallbacks
         telaJoin.SetActive(false);
     }
 
-    public void Login()
-    {
-        if (playerNameInput.text == "")
-        {
-            PhotonNetwork.NickName = playerNameTemp;
-            textoNickPlayer.text = playerNameTemp;
-
-        }
-        else
-        {
-            
-            PhotonNetwork.NickName = playerNameInput.text;
-            textoNickPlayer.text = playerNameInput.text;
-        }
-        telaLogin.SetActive(false);
-        telaJoin.SetActive(true);
-    }
 
 
 
