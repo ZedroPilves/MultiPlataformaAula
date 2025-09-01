@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
+using Microsoft.Unity.VisualStudio.Editor;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -14,6 +17,10 @@ public class Player : MonoBehaviour
     PhotonView photonView;
 
     Rigidbody rigidBody;
+
+    [SerializeField] int vida = 100;
+
+    [SerializeField] UnityEngine.UI.Image hpBar;
 
     #endregion
 
@@ -49,7 +56,12 @@ public class Player : MonoBehaviour
 
     #region Custom Methods
 
+    public void TakeDamage(int dmg)
+    {
+        vida-=dmg;
+        hpBar.fillAmount = vida * 0.1f;
 
+    }
 
     #endregion
 
