@@ -59,7 +59,7 @@ public class Player : MonoBehaviour
     public void TakeDamage(int dmg)
     {
         vida-=dmg;
-        hpBar.fillAmount = vida * 0.1f;
+        hpBar.fillAmount = vida * 0.01f;
 
     }
 
