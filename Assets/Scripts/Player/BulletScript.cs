@@ -1,13 +1,16 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class BulletScript : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] float speed;
-    [SerializeField] int damage;
+    [SerializeField] public int damage;
     [SerializeField] Rigidbody rb;
+    [SerializeField] PhotonView photonView;
     void Start()
     {
+        photonView = GetComponent<PhotonView>();    
         rb = GetComponent<Rigidbody>();
         DestroyBullet();
     }
@@ -24,18 +27,16 @@ public class BulletScript : MonoBehaviour
         
     }
 
-    public void DestroyBullet()
+    public void DestroyBulletRPC()
     {
-        Destroy(this.gameObject, 3.5f);
+        photonView.RPC("DestroyBullet", RpcTarget.All);
     }
 
-    private void OnTriggerEnter(Collider other)
+    [PunRPC]
+    public void DestroyBullet()
     {
-        if(other.gameObject.tag == "Player")
-        {
-           
-            other.gameObject.GetComponent<Player>().TakeDamage(damage);
-            Destroy(this);
-        }
+       Destroy(this.gameObject);    
     }
+
+    
 }

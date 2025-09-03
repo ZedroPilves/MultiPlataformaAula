@@ -15,10 +15,14 @@ public class PlayerAimTopDown : MonoBehaviour
     [SerializeField] GameObject bullet;
 
     private InputAction lookAction;
+      
+
+    [SerializeField] PhotonView photonView;
 
     void Start()
     {
-       
+
+       photonView = GetComponent<PhotonView>(); 
         playerInputs = GetComponent<PlayerInput>();
         lookAction = playerInputs.actions["Look"];
 
@@ -31,38 +35,47 @@ public class PlayerAimTopDown : MonoBehaviour
     }
     void Shoot()
     {
+
        Instantiate(bullet, ShootPos.position, this.gameObject.transform.rotation);  
     }
     void Update()
     {
         // Pega a posição do mouse na tela
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        
 
-        // Cria um raio da câmera até o ponto do mouse na tela
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        if (photonView.IsMine) {
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
 
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 100f, floorMask))
-        {
-            Vector3 targetPoint = hit.point;
+            // Cria um raio da câmera até o ponto do mouse na tela
+            Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
-            // Zera altura do target para o player não inclinar
-            targetPoint.y = transform.position.y;
-
-            // Direção do jogador para o ponto do mouse no chão
-            Vector3 direction = (targetPoint - transform.position).normalized;
-
-            if (direction.sqrMagnitude > 0.01f)
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100f, floorMask))
             {
-                // Rotaciona o jogador para olhar o ponto
-                Quaternion lookRotation = Quaternion.LookRotation(direction);
-                transform.rotation = lookRotation;
+                Vector3 targetPoint = hit.point;
+
+                // Zera altura do target para o player não inclinar
+                targetPoint.y = transform.position.y;
+
+                // Direção do jogador para o ponto do mouse no chão
+                Vector3 direction = (targetPoint - transform.position).normalized;
+
+                if (direction.sqrMagnitude > 0.01f)
+                {
+                    // Rotaciona o jogador para olhar o ponto
+                    Quaternion lookRotation = Quaternion.LookRotation(direction);
+                    transform.rotation = lookRotation;
+                }
             }
+            if (Input.GetButtonDown("Fire1")){
+            Shoot();        
         }
 
 
-        if (Input.GetButtonDown("Fire1")){
-            Shoot();        
+
+
+
+
         }
     }
 }

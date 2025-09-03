@@ -157,7 +157,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   horizontalSpeed: 10
   vida: 100
-  hpBar: {fileID: 0}
+  hpBar: {fileID: 1149930827745215859}
+  enterDamage: 0
 --- !u!114 &5198026339564323437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,6 +217,7 @@ MonoBehaviour:
     m_Bits: 64
   ShootPos: {fileID: 2374366108339162572}
   bullet: {fileID: 2131804459419927690, guid: a04162e88be4e2c489667252e83c214f, type: 3}
+  photonView: {fileID: 0}
 --- !u!114 &5611662770979909767
 MonoBehaviour:
   m_ObjectHideFlags: 0

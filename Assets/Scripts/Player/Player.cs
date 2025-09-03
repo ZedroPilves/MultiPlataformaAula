@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
-using Microsoft.Unity.VisualStudio.Editor;
+//using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
     [SerializeField] int vida = 100;
 
     [SerializeField] UnityEngine.UI.Image hpBar;
+
+    [SerializeField] int enterDamage;
 
     #endregion
 
@@ -49,6 +51,8 @@ public class Player : MonoBehaviour
         float verticalAxis = Input.GetAxis("Vertical");
 
         rigidBody.linearVelocity = new Vector3(horizontalAxis * horizontalSpeed, rigidBody.linearVelocity.y, verticalAxis * horizontalSpeed);
+
+        if (Input.GetKeyDown(KeyCode.Escape)) { photonView.RPC("TakeDamage", RpcTarget.All); }
     }
 
     #endregion
@@ -56,15 +60,41 @@ public class Player : MonoBehaviour
 
     #region Custom Methods
 
-    public void TakeDamage(int dmg)
+
+    [PunRPC]
+    public void TakeDamage()
     {
-        vida-=dmg;
-        hpBar.fillAmount = vida * 0.01f;
+        if(enterDamage != 0)
+        {
+
+
+            vida -= enterDamage;
+
+        }
+        else { vida -= 10; }
+
+            hpBar.fillAmount = vida * 0.01f;
+        enterDamage = 0;
 
     }
 
+
+
+
     #endregion
 
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Bullet")
+        {
+            enterDamage = other.gameObject.GetComponent<BulletScript>().damage;
+
+            photonView.RPC("TakeDamage",RpcTarget.All);
+           // other.gameObject.GetComponent<BulletScript>().DestroyBullet();
+        
+        }
+    }
 
 
 }
