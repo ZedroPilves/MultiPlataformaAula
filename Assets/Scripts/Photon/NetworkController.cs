@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using TMPro;
+using HashTable = ExitGames.Client.Photon.Hashtable;
 
 public class NetworkController : MonoBehaviourPunCallbacks
 {
@@ -22,8 +23,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
     [Header("Player")]
 
     [SerializeField] GameObject playerPrefab;
-    [SerializeField] Transform playerSpawnPosition;
-    
+    [SerializeField] List<Transform> playerSpawnPosition;
+ 
     [Tooltip("InputField que o jogador deve inserir seu nickname")]
     [SerializeField] InputField playerNameInput;
 
@@ -35,6 +36,12 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
     [Tooltip("InputField do nome da sala")]
     [SerializeField] InputField roomName;
+
+    HashTable gamemode = new HashTable();
+    public byte gameMaxPlayer;
+    public string gameModeKey = "gamemode";
+
+
 
     [Tooltip("Texto do botão para se conectar à sala")]
     [SerializeField] Text connectionButtonText;
@@ -53,6 +60,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
         telaLogin.gameObject.SetActive(true);
         telaSala.gameObject.SetActive(false);
+       
     }
 
     void Update()
@@ -91,6 +99,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
     public void BuscarPartidaRapida()
     {
+        string[] tiposDeJogosAleatorios = new string[] { "PVP", "PVAI" };
+        gamemode.Add(gameModeKey, tiposDeJogosAleatorios[Random.Range(0, 1)]);
         PhotonNetwork.JoinLobby();
     }
 
@@ -99,6 +109,35 @@ public class NetworkController : MonoBehaviourPunCallbacks
         string roomTempName = roomName.text;
         RoomOptions roomOptions = new RoomOptions() {MaxPlayers = 4};
         PhotonNetwork.JoinOrCreateRoom(roomTempName, roomOptions, TypedLobby.Default);
+    }
+
+    public void BuscarPartidaPvP()
+    {
+        gamemode.Add(gameModeKey, "PvP");
+        PhotonNetwork.JoinLobby();
+        print(gamemode[gameModeKey]);
+    }
+
+   public void BuscarPartidaPVAI()
+    {
+        gamemode.Add(gameModeKey, "PVAI");
+        PhotonNetwork.JoinLobby();
+        print(gamemode[gameModeKey]);
+    }
+
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        base.OnJoinRandomFailed(returnCode, message);
+        string roomTemp = "Room: " + Random.Range(0, 1000);
+        RoomOptions roomOptions = new RoomOptions();
+        
+        roomOptions.IsOpen = true;
+        roomOptions.IsVisible = true;
+        roomOptions.MaxPlayers = gameMaxPlayer;
+        roomOptions.CustomRoomProperties = gamemode;
+        roomOptions.CustomRoomPropertiesForLobby = new string[] { gameModeKey };
+
+        PhotonNetwork.CreateRoom(roomTemp);
     }
 
     #endregion
@@ -137,8 +176,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
         telaLogin.gameObject.SetActive(false);
         telaSala.gameObject.SetActive(false);
-
-        PhotonNetwork.Instantiate(playerPrefab.name, playerSpawnPosition.position, playerSpawnPosition.rotation, 0);
+        
+        PhotonNetwork.Instantiate(playerPrefab.name, playerSpawnPosition[PhotonNetwork.CurrentRoom.PlayerCount -1].position, playerSpawnPosition[PhotonNetwork.CurrentRoom.PlayerCount].rotation, 0);
     }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
@@ -155,12 +194,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRandomRoom();
     }
 
-    public override void OnJoinRandomFailed(short returnCode, string message)
-    {
-        base.OnJoinRandomFailed(returnCode, message);
-        string roomTemp = "Room: " + Random.Range(1, 1000);
-        PhotonNetwork.CreateRoom(roomTemp);
-    }
+   
 
 
     public override void OnDisconnected(DisconnectCause cause)
